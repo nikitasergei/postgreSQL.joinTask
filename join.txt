@@ -1,0 +1,67 @@
+--1
+select lr.name
+from public.lecture_rooms lr join public.schedules sc on lr.id = sc.lecture_room_id
+							 join public.lectures l on sc.lecture_id = l.id
+							 join public.teachers t on t.id = l.teacher_id
+where (t.name = 'Edward' AND t.surname = 'Hopper');
+
+--2
+select t.surname from( select  a.teacher_id
+					   from public.groups g join public.groups_curators gc ON gc.group_id = g.id
+											 join public.curators c ON c.id = gc.curator_id
+											 join public.teachers t ON t.id = c.teacher_id
+											 join public.assistants a ON a.teacher_id = t.id
+						where g.name like 'F505') as tabl join public.teachers t on tabl.teacher_id = t.id
+where tabl.teacher_id = t.id;
+
+--3
+select s.name from public.teachers t join public.lectures l on t.id = l.teacher_id
+								join public.subjects s on s.id = l.subject_id
+								full join public.groups_lectures gl on gl.lecture_id = l.id 
+								full join public.groups g on g.id = gl.group_id
+where (t.name like 'Alex' AND t.surname like 'Carmack') AND g.year = 5;
+
+--4
+select t.name from public.teachers t join public.lectures l on t.id = l.teacher_id
+								full join public.schedules sc on sc.lecture_id = l.id
+								where sc.day_of_week !=1;
+
+--5 not ended
+select * from public.lecture_rooms lr full join public.schedules sc on lr.id = sc.lecture_room_id
+where (sc.day_of_week!=3 AND sc.week=2);
+
+--6
+select (t.name || ' ' || t.surname) as full_name from public.teachers t full join public.curators c on t.id = c.teacher_id
+ 									  full join public.groups_curators gc on gc.curator_id = c.id
+									 full join public.groups g on gc.group_id = g.id
+									 full join public.departments d on d.id = g.department_id
+									 full join public.faculties f on f.id = d.faculty_id
+where f.name = 'Computer Science' and d.name not like 'Software Development';
+
+--7
+select d.building
+from public.departments d
+union
+select f.building
+from public.faculties f
+union 
+select lr.building
+from public.lecture_rooms lr;
+
+--8
+select (res_tabl.name || ' ' || res_tabl.surname) as teachers_full_name
+from (select * from public.teachers t join public.deans d on t.id = d.teacher_id) as res_tabl
+union
+select (res_tabl1.name || ' ' || res_tabl1.surname) as teachers_full_name
+from (select * from public.teachers t join public.heads h on t.id = h.teacher_id) as res_tabl1
+union
+select (res_tabl2.name || ' ' || res_tabl2.surname) as teachers_full_name
+from (select * from public.teachers t join public.curators c on t.id = c.teacher_id) as res_tabl2
+union
+select (res_tabl3.name || ' ' || res_tabl3.surname) as teachers_full_name
+from (select * from public.teachers t join public.assistants a on t.id = a.teacher_id) as res_tabl3
+
+--9 I realy don't understand this task, because we built constraint on public.lecture_rooms.building check(Building between 1 and 5)
+--and task ask us about bilding #6.
+select * from public.schedules s join public.lecture_rooms lr on s.lecture_room_id=lr.id
+where (lr.name = 'A311' or lr.name='A104')and lr.building=6
